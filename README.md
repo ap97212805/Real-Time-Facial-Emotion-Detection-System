@@ -2,6 +2,9 @@
 
 This project uses the `fer` library (a pre-trained facial emotion recognition model) to detect emotions from webcam/camera images.
 
+<img width="820" height="714" alt="85564f8b-9d43-4027-8c45-c46ff0d26346" src="https://github.com/user-attachments/assets/304f7b0d-ae8e-4b36-b49a-67ea70de7b7e" />
+
+
 ## ✅ Included Dataset (Sample)
 To satisfy the request of "including a dataset with the project", this repo now includes a small **sample dataset** at:
 
