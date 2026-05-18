@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Settings</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+
+<div class="navbar">
+    <div class="nav-left">
+        <a href="/">🎥 Detection</a>
+        <a href="/analytics">📊 Analytics</a>
+        <a href="/history">📈 History</a>
+        <a href="/sessions_list">📁 Sessions</a>
+        <a href="/settings" class="active">⚙️ Settings</a>
+    </div>
+    <div class="nav-right">
+        <a href="#" id="darkToggle" title="Toggle dark mode">🌙</a>
+    </div>
+</div>
+
+<div class="container">
+    <h1>⚙️ Settings</h1>
+
+    
+    <div class="settings-group">
+        <h2>🎨 Emotion Colors</h2>
+        <p style="font-size:0.9rem;color:#666">Customize colors for each emotion</p>
+        <div class="color-picker-group">
+            <div class="color-input">
+                <input type="color" id="color-angry" value="#d32f2f">
+                <label>Angry</label>
+            </div>
+            <div class="color-input">
+                <input type="color" id="color-disgust" value="#7cb342">
+                <label>Disgust</label>
+            </div>
+            <div class="color-input">
+                <input type="color" id="color-fear" value="#512da8">
+                <label>Fear</label>
+            </div>
+            <div class="color-input">
+                <input type="color" id="color-happy" value="#fbc02d">
+                <label>Happy</label>
+            </div>
+            <div class="color-input">
+                <input type="color" id="color-sad" value="#0288d1">
+                <label>Sad</label>
+            </div>
+            <div class="color-input">
+                <input type="color" id="color-surprise" value="#f57c00">
+                <label>Surprise</label>
+            </div>
+            <div class="color-input">
+                <input type="color" id="color-neutral" value="#757575">
+                <label>Neutral</label>
+            </div>
+        </div>
+    </div>
+
+    
+    <div class="settings-group">
+        <h2>🌙 Dark Mode</h2>
+        <label>
+            <input type="checkbox" id="darkModeToggle"> Enable Dark Mode
+        </label>
+    </div>
+
+    
+    <div class="settings-group">
+        <h2>📊 Display Options</h2>
+        <div class="setting-item">
+            <label class="setting-label">
+                <input type="checkbox" id="showFaceCards" checked> Show Face Information Cards
+            </label>
+        </div>
+        <div class="setting-item">
+            <label class="setting-label">
+                <input type="checkbox" id="showCombinations" checked> Show Emotion Combinations
+            </label>
+        </div>
+    </div>
+
+    
+    <div class="settings-group">
+        <h2>🔔 Emotion Alerts & Notifications</h2>
+        <p style="font-size:0.9rem;color:#666">Get alerted when a specific emotion is detected</p>
+        
+        <div class="setting-item">
+            <label class="setting-label">
+                <input type="checkbox" id="enableAlerts"> Enable Emotion Alerts
+            </label>
+        </div>
+
+        <div class="setting-item">
+            <label class="setting-label">Monitor Emotion:</label>
+            <select id="monitorEmotion" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;font-size:1rem;">
+                <option value="angry">😠 Angry</option>
+                <option value="disgust">🤢 Disgust</option>
+                <option value="fear">😨 Fear</option>
+                <option value="happy">😊 Happy</option>
+                <option value="sad">😢 Sad</option>
+                <option value="surprise">😮 Surprise</option>
+                <option value="neutral">😐 Neutral</option>
+            </select>
+        </div>
+
+        <div class="setting-item">
+            <label class="setting-label">Confidence Threshold:</label>
+            <div style="display:flex;align-items:center;gap:10px;">
+                <input type="range" id="alertThreshold" min="0" max="100" value="70" style="flex:1;">
+                <span id="thresholdValue" style="font-weight:600;">70%</span>
+            </div>
+        </div>
+
+        <div class="setting-item">
+            <label class="setting-label">Notification Type:</label>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+                <label>
+                    <input type="checkbox" id="notifSound" checked> Sound Alert
+                </label>
+                <label>
+                    <input type="checkbox" id="notifBrowser"> Browser Notification
+                </label>
+                <label>
+                    <input type="checkbox" id="notifVisual" checked> Visual Highlight
+                </label>
+            </div>
+        </div>
+
+        <div class="setting-item">
+            <button class="btn" style="background:#1f8ef1;color:white;width:100%;padding:10px;" onclick="testAlert()">🔊 Test Alert</button>
+        </div>
+    </div>
+
+    <div class="button-group">
+        <button class="btn btn-save" onclick="saveSettings()">💾 Save Settings</button>
+        <button class="btn btn-reset" onclick="resetSettings()">🔄 Reset to Defaults</button>
+    </div>
+    <div class="status" id="status"></div>
+</div>
+
+<script>
+function saveSettings(){
+    const settings = {
+        colors: {
+            angry: document.getElementById('color-angry').value,
+            disgust: document.getElementById('color-disgust').value,
+            fear: document.getElementById('color-fear').value,
+            happy: document.getElementById('color-happy').value,
+            sad: document.getElementById('color-sad').value,
+            surprise: document.getElementById('color-surprise').value,
+            neutral: document.getElementById('color-neutral').value,
+        },
+        darkMode: document.getElementById('darkModeToggle').checked,
+        showFaceCards: document.getElementById('showFaceCards').checked,
+        showCombinations: document.getElementById('showCombinations').checked,
+        alerts: {
+            enabled: document.getElementById('enableAlerts').checked,
+            emotion: document.getElementById('monitorEmotion').value,
+            threshold: parseInt(document.getElementById('alertThreshold').value),
+            sound: document.getElementById('notifSound').checked,
+            browser: document.getElementById('notifBrowser').checked,
+            visual: document.getElementById('notifVisual').checked
+        }
+    };
+    localStorage.setItem('emotionSettings', JSON.stringify(settings));
+    document.getElementById('status').innerText = '✓ Settings saved!';
+    setTimeout(() => { document.getElementById('status').innerText = ''; }, 2000);
+}
+
+function resetSettings(){
+    if (confirm('Reset all settings to defaults?')) {
+        localStorage.removeItem('emotionSettings');
+        location.reload();
+    }
+}
+
+function loadSettings(){
+    const saved = localStorage.getItem('emotionSettings');
+    if (saved) {
+        const settings = JSON.parse(saved);
+        document.getElementById('color-angry').value = settings.colors.angry;
+        document.getElementById('color-disgust').value = settings.colors.disgust;
+        document.getElementById('color-fear').value = settings.colors.fear;
+        document.getElementById('color-happy').value = settings.colors.happy;
+        document.getElementById('color-sad').value = settings.colors.sad;
+        document.getElementById('color-surprise').value = settings.colors.surprise;
+        document.getElementById('color-neutral').value = settings.colors.neutral;
+        document.getElementById('darkModeToggle').checked = settings.darkMode;
+        document.getElementById('showFaceCards').checked = settings.showFaceCards;
+        document.getElementById('showCombinations').checked = settings.showCombinations;
+        
+        if (settings.alerts) {
+            document.getElementById('enableAlerts').checked = settings.alerts.enabled;
+            document.getElementById('monitorEmotion').value = settings.alerts.emotion;
+            document.getElementById('alertThreshold').value = settings.alerts.threshold;
+            document.getElementById('notifSound').checked = settings.alerts.sound;
+            document.getElementById('notifBrowser').checked = settings.alerts.browser;
+            document.getElementById('notifVisual').checked = settings.alerts.visual;
+        }
+    }
+}
+
+function testAlert(){
+    
+    playAlertSound();
+    
+    if (Notification.permission === 'granted') {
+        new Notification('Emotion Alert Test', {
+            body: 'This is a test notification!',
+            icon: '🔔'
+        });
+    }
+    
+    const container = document.querySelector('.container');
+    if (container) {
+        container.style.backgroundColor = '#fff3cd';
+        setTimeout(() => { container.style.backgroundColor = 'white'; }, 500);
+    }
+    alert('✓ Alert test complete!');
+}
+
+function playAlertSound(){
+    
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    oscillator.frequency.value = 800;
+    oscillator.type = 'sine';
+    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+    
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.5);
+}
+
+function initDarkToggle(){
+    const saved = localStorage.getItem('darkMode');
+    const enabled = saved === '1';
+    if (enabled) document.body.classList.add('dark');
+    const toggle = document.getElementById('darkToggle');
+    if (toggle) {
+        toggle.innerText = enabled ? '☀️' : '🌙';
+        toggle.addEventListener('click', (e)=>{ e.preventDefault(); const isDark = document.body.classList.toggle('dark'); localStorage.setItem('darkMode', isDark ? '1':'0'); toggle.innerText = isDark ? '☀️':'🌙'; });
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    loadSettings();
+    initDarkToggle();
+    
+    
+    if ('Notification' in window && Notification.permission === 'default') {
+        Notification.requestPermission();
+    }
+    
+    
+    document.getElementById('alertThreshold').addEventListener('input', (e) => {
+        document.getElementById('thresholdValue').innerText = e.target.value + '%';
+    });
+    
+    document.getElementById('darkModeToggle').addEventListener('change', (e) => {
+        if (e.target.checked) {
+            document.body.classList.add('dark');
+            localStorage.setItem('darkMode', '1');
+        } else {
+            document.body.classList.remove('dark');
+            localStorage.setItem('darkMode', '0');
+        }
+    });
+});
+</script>
+<script src="/static/script.js"></script>
+</body>
+</html>

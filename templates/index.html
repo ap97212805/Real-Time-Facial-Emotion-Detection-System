@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Real-time Emotion Detection</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+
+<body>
+
+<div class="navbar">
+  <div>
+    <a href="/" class="active">🎥 Detection</a>
+    <a href="/analytics">📊 Analytics</a>
+    <a href="/history">📈 History</a>
+    <a href="/sessions_list">📁 Sessions</a>
+    <a href="/settings">⚙️ Settings</a>
+  </div>
+  <a href="#" id="darkToggle">🌙</a>
+</div>
+
+<h1 id="h1tage">🎥 Real-Time Facial Emotion Detection System</h1>
+
+<div class="main">
+
+  
+  <div class="panel">
+    <h3>Live Camera</h3>
+    <div class="video-wrap">
+      <video id="video" autoplay playsinline muted></video>
+    </div>
+
+    <div class="controls">
+      <button class="primary" id="toggleBtn" onclick="toggleDetection()">⏸ Stop</button>
+      <button class="primary" onclick="resetSession()">🔄 Reset</button>
+      <button class="primary" onclick="takeSnapshot()">📸 Snapshot</button>
+    </div>
+
+
+
+    <div style="margin-top:16px">
+    <h3>🧠 Health Risk Prediction</h3>
+    <div id="diseaseList" style="background:#E6EEF8;padding:12px;border-radius:8px;border:1px solid #e9ecef;margin-top:8px;">
+      <div style="color:#666;font-size:0.9rem;">Analyzing emotions...</div>
+    </div>
+  </div>
+
+
+
+
+
+  </div>
+
+  
+  <div class="panel">
+    <h3>Detected Emotions</h3>
+    <div id="emotionBox" class="emotion-pills"></div>
+
+    <div style="margin-top:50px">
+    <div id="emotionLabel">Emotion Level</div>
+    <div style="background:#b1cdee;height:14px;border-radius:7px;">
+      <div id="emotionBar" style="height:14px;width:0%;background:#067fe9;border-radius:7px;"></div>
+    </div>
+  </div>
+
+  
+  <div style="margin-top:20px;">
+    <h4>💬 Real-time Feedback</h4>
+    <div id="feedbackMessage" style="background:#f0f8ff;padding:12px;border-radius:8px;border:1px solid #e9ecef;font-size:0.9rem;color:#333;">
+      Start your session to receive feedback!
+    </div>
+  </div>
+
+
+  <div style="margin-top:20px;">
+    <h4>📊 Session Progress</h4>
+    <div style="background:#e9ecef;height:20px;border-radius:10px;margin-top:8px;">
+      <div id="progressBar" style="height:20px;width:0%;background:linear-gradient(90deg, #4caf50, #8bc34a);border-radius:10px;transition:width 0.5s ease;"></div>
+    </div>
+    <div id="progressText" style="text-align:center;margin-top:4px;font-size:0.8rem;color:#555;">0%</div>
+  </div>
+
+
+
+  <div class="status-box">
+      <div id="status" style="color: #0488fb;">Ready</div>
+      <div id="confidence">Confidence: -</div>
+      <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #e9ecef;">
+        <div style="font-weight: 600; color: #333; margin-bottom: 8px;">🎤 Interview Assessment</div>
+        <div id="nervousness-level" style="font-size: 0.9rem; color: #555;">Nervousness: -%</div>
+        <div id="hr-assessment" style="font-size: 0.9rem; color: #555;">HR Score: -/100</div>
+
+        <div style="margin-top:12px; font-weight:600; color:#333;">⏱️ Session Duration</div>
+        <div style="margin-top:4px;">
+          <select id="sessionDurationSelect" style="padding:6px;border-radius:4px;border:1px solid #ddd;font-size:0.9rem;min-width:180px;">
+            <option value="30">30 seconds</option>
+            <option value="60" selected>1 minute</option>
+            <option value="120">2 minutes</option>
+            <option value="180">3 minutes</option>
+            <option value="240">4 minutes</option>
+            <option value="300">5 minutes</option>
+            <option value="360">6 minutes</option>
+            <option value="420">7 minutes</option>
+            <option value="480">8 minutes</option>
+            <option value="540">9 minutes</option>
+            <option value="600">10 minutes</option>
+          </select>
+        </div>
+
+        <div style="margin-top:12px; font-weight:600; color:#333;">📝 Custom Practice Questions</div>
+        <div id="questionSetup" style="margin-top:8px;">
+          <div style="margin-bottom:8px;">
+            <label><input type="radio" name="timerMode" value="common" checked> Common time for all questions</label><br>
+            <label><input type="radio" name="timerMode" value="individual"> Individual time per question</label>
+          </div>
+          <div id="commonTimerDiv">
+            <select id="commonQuestionTimer" style="padding:4px;border-radius:4px;border:1px solid #ddd;font-size:0.8rem;">
+              <option value="15">15s per question</option>
+              <option value="25">25s per question</option>
+              <option value="35">35s per question</option>
+              <option value="45">45s per question</option>
+              <option value="55">55s per question</option>
+              <option value="65">65s per question</option>
+              <option value="75">75s per question</option>
+              <option value="85">85s per question</option>
+              <option value="95">95s per question</option>
+              <option value="105">105s per question</option>
+              <option value="115">115s per question</option>
+              <option value="120">120s per question</option>
+            </select>
+          </div>
+          <div id="questionInputs"></div>
+          <div style="display:flex;gap:8px;margin-top:8px;">
+            <button class="primary" onclick="addQuestion()" style="font-size:0.8rem;padding:4px 8px;">➕ Add Question</button>
+            <button class="primary" id="startQuestionsBtn" onclick="startQuestions()" style="font-size:0.8rem;padding:4px 8px;">▶ Start Questions</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
+  
+
+  </div>
+
+</div>
+
+
+<div id="questionModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:1000;align-items:center;justify-content:center;">
+  <div style="background:white;padding:20px;border-radius:8px;max-width:500px;width:90%;color:black;">
+    <h3 id="questionTitle">Question 1/5</h3>
+    <p id="questionText" style="font-size:1.1rem;margin:15px 0;">Question text here</p>
+    <div id="questionTimerDisplay" style="margin:10px 0;font-weight:bold;color:#0488fb;font-size:1.2rem;">Time: 30s</div>
+    <div id="sessionTimerDisplay" style="margin:6px 0;font-weight:bold;color:#333;font-size:1rem;">Session: -</div>
+    <div style="display:flex;gap:8px;align-items:center;margin:8px 0;">
+      <select id="modal-session-duration" style="padding:4px;border-radius:4px;border:1px solid #ddd;font-size:0.8rem;">
+        <option value="30">30 seconds</option>
+        <option value="60" selected>1 minute</option>
+        <option value="120">2 minutes</option>
+        <option value="180">3 minutes</option>
+        <option value="240">4 minutes</option>
+        <option value="300">5 minutes</option>
+        <option value="360">6 minutes</option>
+        <option value="420">7 minutes</option>
+        <option value="480">8 minutes</option>
+        <option value="540">9 minutes</option>
+        <option value="600">10 minutes</option>
+      </select>
+      <button class="primary" id="modal-startSessionBtn" onclick="startSessionFromModal()" style="font-size:0.8rem;padding:4px 8px;">▶ Start</button>
+      <button class="primary" id="modal-pauseSessionBtn" onclick="togglePauseResumeFromModal()" style="font-size:0.8rem;padding:4px 8px;">⏸ Pause</button>
+      <button class="primary" onclick="extendSessionFromModal(1)" style="font-size:0.8rem;padding:4px 8px;">+1m</button>
+    </div>
+    <div id="questionProgress" style="margin:10px 0;">
+      <div style="background:#e9ecef;height:10px;border-radius:5px;">
+        <div id="questionProgressBar" style="height:10px;width:100%;background:#4caf50;border-radius:5px;"></div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:space-between;margin-top:15px;">
+      <button id="prevBtn" class="primary" onclick="navigateQuestion(-1)" disabled>⬅ Previous</button>
+      <button id="nextBtn" class="primary" onclick="navigateQuestion(1)">Next ➡</button>
+    </div>
+    <button onclick="closeQuestionModal()" style="margin-top:10px;width:100%;" class="primary">✖ Close</button>
+  </div>
+</div>
+
+<script src="/static/script.js"></script>
+
+<script>
+
+(function(){
+  const saved = localStorage.getItem("darkMode")==="1";
+  if (saved) document.body.classList.add("dark");
+  const t = document.getElementById("darkToggle");
+  t.innerText = saved ? "☀️" : "🌙";
+  t.onclick = e=>{
+    e.preventDefault();
+    const on = document.body.classList.toggle("dark");
+    localStorage.setItem("darkMode", on ? "1":"0");
+    t.innerText = on ? "☀️":"🌙";
+  };
+})();
+
+
+
+
+
+function takeSnapshot(){
+  const a = document.createElement("a");
+  a.href = captureFrame();
+  a.download = `snapshot_${Date.now()}.jpg`;
+  a.click();
+}
+
+
+</script>
+
+</body>
+</html>

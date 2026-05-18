@@ -1,0 +1,31 @@
+# Flask==2.3.2
+# opencv-python==4.8.0.76
+# numpy>=1.24
+# Pillow==11.3.0
+# fer==22.5.1  # Removed
+# mtcnn==0.1.1  # Removed
+# gunicorn==20.1.0
+# scikit-learn>=1.2
+
+
+# Core Computation
+numpy==1.23.5
+opencv-contrib-python==4.8.1.78
+
+# Machine Learning & Deep Learning
+tensorflow==2.12.0
+
+# Facial Expression Recognition (depends on the above)
+# fer==22.5.1  # Removed, using custom CNN
+
+# Other key dependencies from your list
+flask==2.3.2
+flask-cors==6.0.2
+torch==2.9.1
+torchvision==0.24.1
+matplotlib==3.10.8
+pandas==2.3.3
+pillow==11.3.0
+scikit-learn==1.2.2
+scipy==1.15.3
+reportlab==4.0.7

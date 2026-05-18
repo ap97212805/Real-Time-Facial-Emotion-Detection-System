@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Emotion History</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+
+</head>
+<body>
+
+<div class="navbar">
+    <div class="nav-left">
+        <a href="/">🎥 Detection</a>
+        <a href="/analytics">📊 Analytics</a>
+        <a href="/history" class="active">📈 History</a>
+        <a href="/sessions_list">📁 Sessions</a>
+        <a href="/settings">⚙️ Settings</a>
+    </div>
+    <div class="nav-right">
+        <a href="#" id="darkToggle" title="Toggle dark mode">🌙</a>
+    </div>
+</div>
+
+<div class="container">
+    <h1>📈 Emotion Detection History</h1>
+    <p class="info-text">Last 2 minutes of detections (Real-time updates every 1.5 seconds)</p>
+    
+    <div class="chart-container">
+        <canvas id="emotionChart"></canvas>
+    </div>
+
+    
+    <div style="margin-top:30px;padding:20px;background:#f8f9fa;border-radius:8px;border:1px solid #e9ecef;">
+        <h3>📈 Performance Comparison</h3>
+        <div id="performanceComparison" style="margin-top:15px;">
+            <div style="color:#666;font-size:0.9rem;">Loading comparison data...</div>
+        </div>
+    </div>
+
+    <button class="refresh-btn" onclick="loadHistory()">🔄 Refresh Chart</button>
+</div>
+
+<script>
+
+const emotionColors = {
+    angry: "#d32f2f",
+    disgust: "#7cb342",
+    fear: "#512da8",
+    happy: "#fbc02d",
+    sad: "#0288d1",
+    surprise: "#f57c00",
+    neutral: "#757575"
+};
+
+let chart = null;
+
+async function loadHistory() {
+    try {
+        const response = await fetch("/api/history");
+        const detections = await response.json();
+        
+        if (detections.length === 0) {
+            console.log("No detections yet");
+            return;
+        }
+        
+        
+        const timeLabels = detections.map((d, i) => {
+            const time = new Date(d.timestamp);
+            return time.toLocaleTimeString();
+        });
+        
+        const emotions = ["angry", "disgust", "fear", "happy", "sad", "surprise", "neutral"];
+        const datasets = [];
+        
+        for (const emotion of emotions) {
+            const data = detections.map(d => d.emotion === emotion ? d.score * 100 : 0);
+            datasets.push({
+                label: emotion.charAt(0).toUpperCase() + emotion.slice(1),
+                data: data,
+                borderColor: emotionColors[emotion],
+                backgroundColor: emotionColors[emotion] + "20",
+                tension: 0.4,
+                fill: false,
+                pointRadius: 4,
+                pointHoverRadius: 6,
+                borderWidth: 2
+            });
+        }
+        
+        const ctx = document.getElementById("emotionChart").getContext("2d");
+        
+        if (chart) {
+            chart.destroy();
+        }
+        
+        chart = new Chart(ctx, {
+            type: "line",
+            data: {
+                labels: timeLabels,
+                datasets: datasets
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: "top"
+                    },
+                    title: {
+                        display: true,
+                        text: "Emotion Detection Timeline"
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        title: {
+                            display: true,
+                            text: "Confidence Score (%)"
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: "Time"
+                        }
+                    }
+                }
+            }
+        });
+    } catch (error) {
+        console.error("Error loading history:", error);
+    }
+}
+
+
+
+
+
+
+
+loadHistory();
+setInterval(loadHistory, 1500);
+
+
+function initDarkToggle(){
+    const saved = localStorage.getItem('darkMode');
+    const enabled = saved === '1';
+    if (enabled) document.body.classList.add('dark');
+    const toggle = document.getElementById('darkToggle');
+    if (toggle) {
+        toggle.innerText = enabled ? '☀️' : '🌙';
+        toggle.addEventListener('click', (e)=>{ e.preventDefault(); const isDark = document.body.classList.toggle('dark'); localStorage.setItem('darkMode', isDark ? '1':'0'); toggle.innerText = isDark ? '☀️':'🌙'; });
+    }
+}
+document.addEventListener('DOMContentLoaded', initDarkToggle);
+
+</script>
+<script src="/static/script.js"></script>
+</body>
+</html>
